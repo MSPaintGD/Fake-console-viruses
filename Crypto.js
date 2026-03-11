@@ -1,6 +1,4 @@
-/*
-THIS DOES ACTUALLY TRACK YOUR IP FROM GOOGLES SEARCH
-/*
+
 (async function() {
     // 1. Fetch IP and Location with multiple fallbacks
     let city = "Unknown", region = "Unknown", country = "Unknown", ip = "FETCHING...";
