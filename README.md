@@ -15,3 +15,4 @@ The goal is to replicate the look of old-school console viruses for entertainmen
 
 # these are fake "viruses" to simulate what they would be like on your computer. 
 have fun i guess!!!
+i used a lot of ai but i added to the structure since i used ai as the structure and added more to it
