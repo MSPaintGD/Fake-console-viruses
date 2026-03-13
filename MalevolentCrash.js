@@ -1,5 +1,4 @@
 (function() {
-    // --- FASE 1: MALEVOLENT SHRINE (ESTETICA) ---
     const overlay = document.createElement('div');
     overlay.style.cssText = "position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(50,0,0,0.3);z-index:1000000;pointer-events:none;display:flex;flex-direction:column;justify-content:center;align-items:center;transition:all 0.5s;";
     overlay.innerHTML = `
@@ -10,7 +9,7 @@
 
     function deliverMegaSlash() {
         const slash = document.createElement('div');
-        // Squarci molto più grandi e rossi
+
         const thickness = Math.floor(Math.random() * 20) + 10;
         slash.style.cssText = `
             position: fixed;
@@ -29,21 +28,21 @@
         setTimeout(() => slash.remove(), 100);
     }
 
-    // Loop della prima fase (ogni 200ms per stabilità)
+
     const shrineInterval = setInterval(() => {
         deliverMegaSlash();
         document.body.style.transform = `translate(${(Math.random()-0.5)*40}px, ${(Math.random()-0.5)*40}px)`;
         document.documentElement.style.filter = `sepia(1) saturate(10) hue-rotate(-30deg)`;
     }, 200);
 
-    // --- TRANSIZIONE DOPO 5 SECONDI ---
+
     setTimeout(() => {
         clearInterval(shrineInterval);
         overlay.remove();
         document.body.style.transform = "none";
         document.documentElement.style.filter = "none";
         
-        // --- FASE 2: IL TUO SCRIPT ORIGINALE (THE KILLER) ---
+// (THE KILLER) ---
         (function() {
             // 1. ALERT SPAM
             for(let i=0; i<3; i++) alert("!!! WARNING: VRAM OVERFLOW !!!");
