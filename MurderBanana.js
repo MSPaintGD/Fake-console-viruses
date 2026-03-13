@@ -10,36 +10,34 @@
     let w = canvas.width = window.innerWidth;
     let h = canvas.height = window.innerHeight;
 
-    // The Army of Bananas
-    let bananas = [{ x: w/2, y: h/2, vx: 3, vy: 3, size: 100, isMain: true }];
+    // Movement is slightly slower (2.5) for a "creeping" virus feel
+    let bananas = [{ x: w/2, y: h/2, vx: 2.5, vy: 2.5, size: 100 }];
     let activeEffects = new Set();
     let invertToggle = false;
 
     function draw() {
-        // NOISE/STATIC EFFECT
-        if (activeEffects.has('NOISE')) {
-            ctx.fillStyle = `rgba(${Math.random()*255}, ${Math.random()*255}, ${Math.random()*255}, 0.1)`;
-            for(let i=0; i<8; i++) ctx.fillRect(0, Math.random()*h, w, 2);
+        // Subtle Melt/Static (20% less opacity)
+        if (activeEffects.has('STATIC')) {
+            ctx.fillStyle = `rgba(255, 255, 255, 0.02)`;
+            for(let i=0; i<3; i++) ctx.fillRect(0, Math.random()*h, w, 1);
         } else {
             ctx.clearRect(0, 0, w, h);
         }
 
-        // INTENSE STROBE & FILTERS
         let filters = [];
-        if (invertToggle) filters.push('invert(100%)');
-        if (activeEffects.has('GLITCH')) filters.push(`hue-rotate(${Math.random() * 360}deg) contrast(300%)`);
-        if (activeEffects.has('LITE_BLUR')) filters.push('blur(1.5px)');
+        if (invertToggle) filters.push('invert(80%)'); // Not a full 100% harsh invert
+        if (activeEffects.has('GLITCH')) filters.push(`hue-rotate(${Math.random() * 90}deg) saturate(200%)`);
+        if (activeEffects.has('LITE_BLUR')) filters.push('blur(0.8px)');
         document.body.style.filter = filters.join(' ');
 
-        // SHAKE & WARP
+        // Reduced Shake/Warp
         let transform = '';
-        if (activeEffects.has('SHAKE')) transform += `translate(${Math.random()*20-10}px, ${Math.random()*10-5}px) `;
-        if (activeEffects.has('WARP')) transform += `skew(${Math.random()*8}deg) `;
+        if (activeEffects.has('SHAKE')) transform += `translate(${Math.random()*10-5}px, ${Math.random()*4-2}px) `;
+        if (activeEffects.has('WARP')) transform += `skew(${Math.random()*4}deg) `;
         document.body.style.transform = transform;
 
-        // PROCESS ALL BANANAS
-        ctx.shadowBlur = 20;
-        ctx.shadowColor = "yellow";
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = "rgba(255, 255, 0, 0.5)";
 
         for (let i = bananas.length - 1; i >= 0; i--) {
             let b = bananas[i];
@@ -49,38 +47,34 @@
             b.x += b.vx;
             b.y += b.vy;
 
-            // Collision Detection
             let hit = false;
             if (b.x <= 0 || b.x >= w - b.size) { b.vx *= -1; hit = true; }
             if (b.y <= 0 || b.y >= h - b.size) { b.vy *= -1; hit = true; }
 
             if (hit) {
-                // 1. INVERT CHANCE
-                if (Math.random() > 0.4) invertToggle = !invertToggle;
+                // Invert happens less often (20% chance)
+                if (Math.random() > 0.8) invertToggle = !invertToggle;
 
-                // 2. ADD VIRUS EFFECTS
-                const pool = ['NOISE', 'SHAKE', 'GLITCH', 'LITE_BLUR', 'WARP'];
+                const pool = ['STATIC', 'SHAKE', 'GLITCH', 'LITE_BLUR', 'WARP'];
                 activeEffects.add(pool[Math.floor(Math.random() * pool.length)]);
 
-                // 3. DUPLICATE: Spawn 1 new banana per bounce (limit 100 to prevent crash)
+                // Duplicate 1 more per bounce (Limit 100)
                 if (bananas.length < 100) {
                     bananas.push({
                         x: b.x,
                         y: b.y,
-                        vx: -b.vx + (Math.random() * 2 - 1),
-                        vy: b.vy + (Math.random() * 2 - 1),
-                        size: Math.max(30, b.size * 0.8) // Clones get slightly smaller
+                        vx: -b.vx + (Math.random() - 0.5),
+                        vy: b.vy + (Math.random() - 0.5),
+                        size: Math.max(30, b.size * 0.9)
                     });
                 }
 
-                // Neon background flash
-                document.body.style.backgroundColor = `hsl(${Math.random()*360}, 100%, 50%)`;
-                console.log("%c [!] CLONE_DUPLICATION_ERROR: BANANA_COUNT=" + bananas.length, "color: yellow; background: red;");
+                // Subtler background tint instead of bright neon
+                document.body.style.backgroundColor = `hsla(${Math.random()*360}, 50%, 50%, 0.1)`;
             }
         }
-
         requestAnimationFrame(draw);
     }
-
     draw();
+    console.log("%c BANANA_VIRUS: REDUCED_INTENSITY_MODE_ACTIVE", "color: orange; font-weight: bold;");
 })();
