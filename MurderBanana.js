@@ -10,58 +10,73 @@
     let w = canvas.width = window.innerWidth;
     let h = canvas.height = window.innerHeight;
 
-    let banana = { x: w/2, y: h/2, vx: 4, vy: 4, size: 100 }; 
+    // The Army of Bananas
+    let bananas = [{ x: w/2, y: h/2, vx: 3, vy: 3, size: 100, isMain: true }];
     let activeEffects = new Set();
     let invertToggle = false;
 
     function draw() {
-        // MELT: Now draws random colored rectangles for "Dead Pixels"
-        if (activeEffects.has('STATIC')) {
+        // NOISE/STATIC EFFECT
+        if (activeEffects.has('NOISE')) {
             ctx.fillStyle = `rgba(${Math.random()*255}, ${Math.random()*255}, ${Math.random()*255}, 0.1)`;
-            for(let i=0; i<5; i++) ctx.fillRect(Math.random()*w, Math.random()*h, 100, 2);
+            for(let i=0; i<8; i++) ctx.fillRect(0, Math.random()*h, w, 2);
         } else {
             ctx.clearRect(0, 0, w, h);
         }
 
+        // INTENSE STROBE & FILTERS
         let filters = [];
         if (invertToggle) filters.push('invert(100%)');
-        if (activeEffects.has('GLITCH')) filters.push(`hue-rotate(${Math.random() * 360}deg) saturate(500%)`);
-        
-        // Minor blur only if triggered (barely visible)
-        if (activeEffects.has('LITE_BLUR')) filters.push('blur(1px)');
-        
+        if (activeEffects.has('GLITCH')) filters.push(`hue-rotate(${Math.random() * 360}deg) contrast(300%)`);
+        if (activeEffects.has('LITE_BLUR')) filters.push('blur(1.5px)');
         document.body.style.filter = filters.join(' ');
 
-        // SCREEN TEAR: Shakes the page horizontally and vertically
-        if (activeEffects.has('SHAKE')) {
-            document.body.style.transform = `translate(${Math.random()*30-15}px, ${Math.random()*10-5}px)`;
-        }
+        // SHAKE & WARP
+        let transform = '';
+        if (activeEffects.has('SHAKE')) transform += `translate(${Math.random()*20-10}px, ${Math.random()*10-5}px) `;
+        if (activeEffects.has('WARP')) transform += `skew(${Math.random()*8}deg) `;
+        document.body.style.transform = transform;
 
-        // Draw the Huge Banana
-        ctx.font = `${banana.size}px serif`;
-        ctx.shadowBlur = 40;
-        ctx.shadowColor = invertToggle ? "cyan" : "red";
-        ctx.fillText('🍌', banana.x, banana.y);
+        // PROCESS ALL BANANAS
+        ctx.shadowBlur = 20;
+        ctx.shadowColor = "yellow";
 
-        banana.x += banana.vx;
-        banana.y += banana.vy;
+        for (let i = bananas.length - 1; i >= 0; i--) {
+            let b = bananas[i];
+            ctx.font = `${b.size}px serif`;
+            ctx.fillText('🍌', b.x, b.y);
 
-        // Collision logic
-        let hit = false;
-        if (banana.x <= 0 || banana.x >= w - banana.size) { banana.vx *= -1; hit = true; }
-        if (banana.y <= 0 || banana.y >= h - banana.size) { banana.vy *= -1; hit = true; }
+            b.x += b.vx;
+            b.y += b.vy;
 
-        if (hit) {
-            // High chance to flip inversion
-            if (Math.random() > 0.3) invertToggle = !invertToggle;
+            // Collision Detection
+            let hit = false;
+            if (b.x <= 0 || b.x >= w - b.size) { b.vx *= -1; hit = true; }
+            if (b.y <= 0 || b.y >= h - b.size) { b.vy *= -1; hit = true; }
 
-            const newEffects = ['STATIC', 'SHAKE', 'GLITCH', 'LITE_BLUR', 'TEAR'];
-            activeEffects.add(newEffects[Math.floor(Math.random() * newEffects.length)]);
-            
-            // Random Background Flash
-            document.body.style.backgroundColor = `hsl(${Math.random()*360}, 100%, 50%)`;
-            
-            console.log("%c [CRITICAL] BANANA_CORRUPTION_INDEX_STABLE", "color: white; background: red;");
+            if (hit) {
+                // 1. INVERT CHANCE
+                if (Math.random() > 0.4) invertToggle = !invertToggle;
+
+                // 2. ADD VIRUS EFFECTS
+                const pool = ['NOISE', 'SHAKE', 'GLITCH', 'LITE_BLUR', 'WARP'];
+                activeEffects.add(pool[Math.floor(Math.random() * pool.length)]);
+
+                // 3. DUPLICATE: Spawn 1 new banana per bounce (limit 100 to prevent crash)
+                if (bananas.length < 100) {
+                    bananas.push({
+                        x: b.x,
+                        y: b.y,
+                        vx: -b.vx + (Math.random() * 2 - 1),
+                        vy: b.vy + (Math.random() * 2 - 1),
+                        size: Math.max(30, b.size * 0.8) // Clones get slightly smaller
+                    });
+                }
+
+                // Neon background flash
+                document.body.style.backgroundColor = `hsl(${Math.random()*360}, 100%, 50%)`;
+                console.log("%c [!] CLONE_DUPLICATION_ERROR: BANANA_COUNT=" + bananas.length, "color: yellow; background: red;");
+            }
         }
 
         requestAnimationFrame(draw);
